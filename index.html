@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Valentine?</title>
+  <style>
+    :root {
+      --pink1: #ffd1dc;
+      --pink2: #ff7aa2;
+      --card: rgba(255,255,255,0.78);
+      --text: #2b2b2b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      overflow: hidden;
+      background: radial-gradient(circle at 20% 20%, var(--pink1), var(--pink2));
+    }
+
+    /* Soft moving light blobs (pink/white) */
+    .bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .blob {
+      position: absolute;
+      width: 55vmax;
+      height: 55vmax;
+      border-radius: 50%;
+      filter: blur(50px);
+      opacity: 0.45;
+      animation: drift 16s ease-in-out infinite alternate;
+      mix-blend-mode: screen;
+    }
+    .blob.one {
+      left: -15vmax; top: -20vmax;
+      background: radial-gradient(circle at 30% 30%, #fff, #ffc0d0 60%, transparent 70%);
+      animation-duration: 18s;
+    }
+    .blob.two {
+      right: -20vmax; bottom: -20vmax;
+      background: radial-gradient(circle at 30% 30%, #fff, #ff8fb1 60%, transparent 70%);
+      animation-duration: 22s;
+    }
+    .blob.three {
+      left: 25vmax; bottom: -30vmax;
+      background: radial-gradient(circle at 30% 30%, #fff, #ffd1dc 60%, transparent 70%);
+      animation-duration: 20s;
+    }
+
+    @keyframes drift {
+      from { transform: translate(0,0) scale(1); }
+      to   { transform: translate(8vmax, -6vmax) scale(1.05); }
+    }
+
+    /* Floating hearts + cute emojis layer */
+    .floaties {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .floaty {
+      position: absolute;
+      opacity: 0.70;
+      filter: drop-shadow(0 8px 14px rgba(0,0,0,0.08));
+      animation: floatUp linear infinite;
+      will-change: transform;
+    }
+    @keyframes floatUp {
+      from { transform: translateY(110vh) translateX(0) rotate(0deg); }
+      to   { transform: translateY(-15vh) translateX(var(--drift)) rotate(360deg); }
+    }
+
+    .card {
+      z-index: 2;
+      width: min(720px, 92vw);
+      padding: 40px 28px;
+      border-radius: 24px;
+      background: var(--card);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.16);
+      text-align: center;
+      position: relative;
+    }
+
+    /* Teddy bear on homepage */
+    .bear {
+      font-size: clamp(56px, 8vw, 88px);
+      line-height: 1;
+      margin-bottom: 10px;
+      display: inline-block;
+      animation: bearBounce 1.6s ease-in-out infinite;
+      transform-origin: 50% 80%;
+      filter: drop-shadow(0 16px 25px rgba(0,0,0,0.10));
+    }
+    @keyframes bearBounce {
+      0%, 100% { transform: translateY(0) rotate(-1deg); }
+      50%      { transform: translateY(-10px) rotate(1deg); }
+    }
+
+    h1 {
+      margin: 0 0 22px;
+      font-size: clamp(22px, 4vw, 34px);
+      line-height: 1.2;
+      font-weight: 800;
+    }
+
+    .buttons {
+      margin-top: 26px;
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      height: 100px; /* space for No to move */
+    }
+
+    button {
+      border: 0;
+      padding: 14px 22px;
+      border-radius: 999px;
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.14);
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    #yesBtn {
+      background: #22c55e;
+      color: white;
+    }
+    #yesBtn:hover { transform: translateY(-2px); filter: brightness(1.05); }
+
+    #noBtn {
+      background: #ef4444;
+      color: white;
+      position: absolute; /* movable */
+      left: 50%;
+      top: 22px;
+      transform: translateX(120px);
+    }
+
+    /* Confetti canvas on top */
+    canvas#confetti {
+      position: fixed;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    .modalOverlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      background: rgba(0,0,0,0.45);
+      padding: 22px;
+      z-index: 4;
+    }
+
+    .modal {
+      width: min(640px, 92vw);
+      background: white;
+      border-radius: 22px;
+      padding: 28px;
+      text-align: center;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.25);
+    }
+
+    .modal h2 {
+      margin: 0 0 10px;
+      font-size: clamp(22px, 4vw, 30px);
+    }
+
+    .modal p {
+      margin: 0 0 18px;
+      font-size: 18px;
+    }
+
+    .closeBtn {
+      background: #111827;
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg" aria-hidden="true">
+    <div class="blob one"></div>
+    <div class="blob two"></div>
+    <div class="blob three"></div>
+  </div>
+
+  <div class="floaties" id="floaties" aria-hidden="true"></div>
+
+  <canvas id="confetti"></canvas>
+
+  <div class="card" id="card">
+    <div class="bear" aria-hidden="true">🧸</div>
+    <h1>Carol, would you be my Valentine again this year?</h1>
+
+    <div class="buttons" id="playArea">
+      <button id="yesBtn">Yes</button>
+      <button id="noBtn" aria-label="No">No</button>
+    </div>
+  </div>
+
+  <div class="modalOverlay" id="overlay">
+    <div class="modal">
+      <h2>Congratulations 🎉</h2>
+      <p>You have a Valentine — and he’s the best in the world. 🧸💖</p>
+      <button class="closeBtn" id="closeBtn">Aww ❤️</button>
+    </div>
+  </div>
+
+  <script>
+    // ---------------------------
+    // 0) "Pop" sound (Web Audio)
+    // ---------------------------
+    let audioCtx = null;
+
+    function playPop() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === "suspended") audioCtx.resume();
+
+      const t0 = audioCtx.currentTime;
+
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(260, t0);
+      osc.frequency.exponentialRampToValueAtTime(120, t0 + 0.06);
+
+      gain.gain.setValueAtTime(0.0001, t0);
+      gain.gain.exponentialRampToValueAtTime(0.5, t0 + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.09);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start(t0);
+      osc.stop(t0 + 0.1);
+    }
+
+    // ---------------------------
+    // 1) Floating hearts + cute emojis
+    // ---------------------------
+    const floatiesLayer = document.getElementById("floaties");
+
+    // Hearts + cute iPhone-style emojis
+    const floatChars = [
+      "❤","♡","❥","♥","💕","💖","💘","💝","✨","🌸","🥰","😍","🎀","🫶","🍓"
+    ];
+
+    // More = more “busy”; you can tweak this number
+    const floatCount = 34;
+
+    function spawnFloaties() {
+      floatiesLayer.innerHTML = "";
+
+      for (let i = 0; i < floatCount; i++) {
+        const el = document.createElement("div");
+        el.className = "floaty";
+        el.textContent = floatChars[Math.floor(Math.random() * floatChars.length)];
+
+        const left = Math.random() * 100;
+        const size = 14 + Math.random() * 22;     // 14 - 36px
+        const dur  = 8 + Math.random() * 12;      // 8 - 20s
+        const delay = Math.random() * 10;         // 0 - 10s
+        const drift = (Math.random() * 100 - 50) + "px"; // -50..50px
+        const opacity = 0.45 + Math.random() * 0.45;
+
+        el.style.left = left + "vw";
+        el.style.fontSize = size + "px";
+        el.style.animationDuration = dur + "s";
+        el.style.animationDelay = (-delay) + "s";
+        el.style.setProperty("--drift", drift);
+        el.style.opacity = opacity.toFixed(2);
+
+        floatiesLayer.appendChild(el);
+      }
+    }
+
+    spawnFloaties();
+    window.addEventListener("resize", spawnFloaties);
+
+    // ---------------------------
+    // 2) No button evasion
+    // ---------------------------
+    const noBtn = document.getElementById("noBtn");
+    const yesBtn = document.getElementById("yesBtn");
+    const overlay = document.getElementById("overlay");
+    const closeBtn = document.getElementById("closeBtn");
+    const playArea = document.getElementById("playArea");
+
+    playArea.style.position = "relative";
+
+    function moveNoButton() {
+      const areaRect = playArea.getBoundingClientRect();
+      const btnRect = noBtn.getBoundingClientRect();
+      const pad = 8;
+
+      const maxX = areaRect.width - btnRect.width - pad;
+      const maxY = areaRect.height - btnRect.height - pad;
+
+      const x = Math.max(pad, Math.floor(Math.random() * maxX));
+      const y = Math.max(pad, Math.floor(Math.random() * maxY));
+
+      noBtn.style.left = x + "px";
+      noBtn.style.top = y + "px";
+      noBtn.style.transform = "none";
+    }
+
+    noBtn.addEventListener("mouseenter", moveNoButton);
+
+    playArea.addEventListener("mousemove", (e) => {
+      const btnRect = noBtn.getBoundingClientRect();
+      const dx = e.clientX - (btnRect.left + btnRect.width / 2);
+      const dy = e.clientY - (btnRect.top + btnRect.height / 2);
+      const dist = Math.hypot(dx, dy);
+      if (dist < 90) moveNoButton();
+    });
+
+    noBtn.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      moveNoButton();
+    }, { passive: false });
+
+    setTimeout(moveNoButton, 250);
+
+    // ---------------------------
+    // 3) Confetti (canvas)
+    // ---------------------------
+    const canvas = document.getElementById("confetti");
+    const ctx = canvas.getContext("2d");
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth * devicePixelRatio;
+      canvas.height = window.innerHeight * devicePixelRatio;
+      canvas.style.width = window.innerWidth + "px";
+      canvas.style.height = window.innerHeight + "px";
+      ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+    }
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+
+    let confettiPieces = [];
+    let confettiActive = false;
+    let confettiEndTime = 0;
+
+    function rand(min, max) { return Math.random() * (max - min) + min; }
+
+    function launchConfetti(durationMs = 2200) {
+      confettiPieces = [];
+      const count = 240;
+
+      for (let i = 0; i < count; i++) {
+        confettiPieces.push({
+          x: rand(0, window.innerWidth),
+          y: rand(-40, -10),
+          w: rand(6, 12),
+          h: rand(8, 16),
+          vx: rand(-2.2, 2.2),
+          vy: rand(2.5, 6.2),
+          rot: rand(0, Math.PI * 2),
+          vr: rand(-0.2, 0.2),
+          color: Math.random() < 0.5
+            ? "rgba(255,255,255,0.95)"
+            : "rgba(255,105,180,0.95)"
+        });
+      }
+
+      confettiActive = true;
+      confettiEndTime = performance.now() + durationMs;
+      requestAnimationFrame(tickConfetti);
+    }
+
+    function tickConfetti(t) {
+      if (!confettiActive) return;
+
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+      const gravity = 0.06;
+      const drag = 0.995;
+
+      for (const p of confettiPieces) {
+        p.vy += gravity;
+        p.vx *= drag;
+        p.vy *= drag;
+
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rot += p.vr;
+
+        if (p.x < -30) p.x = window.innerWidth + 30;
+        if (p.x > window.innerWidth + 30) p.x = -30;
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.restore();
+      }
+
+      const allBelow = confettiPieces.every(p => p.y > window.innerHeight + 60);
+      if (t > confettiEndTime || allBelow) {
+        confettiActive = false;
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        return;
+      }
+      requestAnimationFrame(tickConfetti);
+    }
+
+    // ---------------------------
+    // 4) Yes click -> pop + confetti + modal
+    // ---------------------------
+    yesBtn.addEventListener("click", () => {
+      playPop();
+      launchConfetti();
+      overlay.style.display = "grid";
+    });
+
+    closeBtn.addEventListener("click", () => {
+      overlay.style.display = "none";
+    });
+  </script>
+</body>
+</html>
