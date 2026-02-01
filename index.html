@@ -4,198 +4,339 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Valentine?</title>
+
   <style>
-    :root {
-      --pink1: #ffd1dc;
-      --pink2: #ff7aa2;
-      --card: rgba(255,255,255,0.78);
-      --text: #2b2b2b;
+    :root{
+      --pink1:#ffd1dc;
+      --pink2:#ff7aa2;
+      --card:rgba(255,255,255,.78);
+      --text:#2b2b2b;
+      --shadow: 0 20px 60px rgba(0,0,0,.16);
     }
 
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color: var(--text);
-      overflow: hidden;
-      background: radial-gradient(circle at 20% 20%, var(--pink1), var(--pink2));
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--text);
+      overflow:hidden;
+      background:radial-gradient(circle at 20% 20%, var(--pink1), var(--pink2));
     }
 
-    /* Soft moving light blobs (pink/white) */
-    .bg {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      overflow: hidden;
-      pointer-events: none;
+    /* Background blobs */
+    .bg{position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;}
+    .blob{
+      position:absolute;
+      width:55vmax; height:55vmax;
+      border-radius:50%;
+      filter:blur(50px);
+      opacity:.45;
+      mix-blend-mode:screen;
+      animation:drift 16s ease-in-out infinite alternate;
     }
-    .blob {
-      position: absolute;
-      width: 55vmax;
-      height: 55vmax;
-      border-radius: 50%;
-      filter: blur(50px);
-      opacity: 0.45;
-      animation: drift 16s ease-in-out infinite alternate;
-      mix-blend-mode: screen;
+    .blob.one{
+      left:-15vmax; top:-20vmax;
+      background:radial-gradient(circle at 30% 30%, #fff, #ffc0d0 60%, transparent 70%);
+      animation-duration:18s;
     }
-    .blob.one {
-      left: -15vmax; top: -20vmax;
-      background: radial-gradient(circle at 30% 30%, #fff, #ffc0d0 60%, transparent 70%);
-      animation-duration: 18s;
+    .blob.two{
+      right:-20vmax; bottom:-20vmax;
+      background:radial-gradient(circle at 30% 30%, #fff, #ff8fb1 60%, transparent 70%);
+      animation-duration:22s;
     }
-    .blob.two {
-      right: -20vmax; bottom: -20vmax;
-      background: radial-gradient(circle at 30% 30%, #fff, #ff8fb1 60%, transparent 70%);
-      animation-duration: 22s;
+    .blob.three{
+      left:25vmax; bottom:-30vmax;
+      background:radial-gradient(circle at 30% 30%, #fff, #ffd1dc 60%, transparent 70%);
+      animation-duration:20s;
     }
-    .blob.three {
-      left: 25vmax; bottom: -30vmax;
-      background: radial-gradient(circle at 30% 30%, #fff, #ffd1dc 60%, transparent 70%);
-      animation-duration: 20s;
+    @keyframes drift{
+      from{transform:translate(0,0) scale(1);}
+      to{transform:translate(8vmax,-6vmax) scale(1.05);}
     }
 
-    @keyframes drift {
-      from { transform: translate(0,0) scale(1); }
-      to   { transform: translate(8vmax, -6vmax) scale(1.05); }
-    }
-
-    /* Floating hearts + cute emojis layer */
-    .floaties {
-      position: fixed;
-      inset: 0;
-      z-index: 1;
-      pointer-events: none;
-      overflow: hidden;
-    }
-    .floaty {
-      position: absolute;
-      opacity: 0.70;
-      filter: drop-shadow(0 8px 14px rgba(0,0,0,0.08));
+    /* Floating hearts + cute emojis */
+    .floaties{position:fixed; inset:0; z-index:1; pointer-events:none; overflow:hidden;}
+    .floaty{
+      position:absolute;
+      opacity:.72;
+      filter:drop-shadow(0 8px 14px rgba(0,0,0,.08));
       animation: floatUp linear infinite;
-      will-change: transform;
+      will-change:transform;
+      user-select:none;
     }
-    @keyframes floatUp {
-      from { transform: translateY(110vh) translateX(0) rotate(0deg); }
-      to   { transform: translateY(-15vh) translateX(var(--drift)) rotate(360deg); }
+    @keyframes floatUp{
+      from{transform:translateY(110vh) translateX(0) rotate(0deg);}
+      to{transform:translateY(-15vh) translateX(var(--drift)) rotate(360deg);}
     }
-
-    .card {
-      z-index: 2;
-      width: min(720px, 92vw);
-      padding: 40px 28px;
-      border-radius: 24px;
-      background: var(--card);
-      backdrop-filter: blur(12px);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.16);
-      text-align: center;
-      position: relative;
+    /* Speed boost after YES */
+    body.party .floaty{
+      animation-duration: calc(var(--dur) * .55);
+      opacity: .9;
     }
 
-    /* Teddy bear on homepage */
-    .bear {
-      font-size: clamp(56px, 8vw, 88px);
-      line-height: 1;
-      margin-bottom: 10px;
-      display: inline-block;
-      animation: bearBounce 1.6s ease-in-out infinite;
-      transform-origin: 50% 80%;
-      filter: drop-shadow(0 16px 25px rgba(0,0,0,0.10));
-    }
-    @keyframes bearBounce {
-      0%, 100% { transform: translateY(0) rotate(-1deg); }
-      50%      { transform: translateY(-10px) rotate(1deg); }
+    /* Confetti canvas */
+    canvas#confetti{position:fixed; inset:0; z-index:3; pointer-events:none;}
+
+    /* Main card */
+    .card{
+      z-index:2;
+      width:min(760px, 92vw);
+      padding:34px 26px 28px;
+      border-radius:26px;
+      background:var(--card);
+      backdrop-filter:blur(12px);
+      box-shadow:var(--shadow);
+      text-align:center;
+      position:relative;
     }
 
-    h1 {
-      margin: 0 0 22px;
-      font-size: clamp(22px, 4vw, 34px);
-      line-height: 1.2;
-      font-weight: 800;
+    /* Top bar */
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-bottom:14px;
+    }
+    .pill{
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.7);
+      box-shadow:0 10px 25px rgba(0,0,0,.08);
+      font-weight:800;
+      font-size:14px;
+      white-space:nowrap;
+    }
+    .pill small{opacity:.75; font-weight:700;}
+    .pill.muted{font-weight:700;}
+
+    /* Teddy */
+    .bear{
+      font-size:clamp(56px, 8vw, 92px);
+      line-height:1;
+      margin: 4px 0 10px;
+      display:inline-block;
+      animation:bearBounce 1.6s ease-in-out infinite;
+      transform-origin:50% 80%;
+      filter:drop-shadow(0 16px 25px rgba(0,0,0,.10));
+    }
+    @keyframes bearBounce{
+      0%,100%{transform:translateY(0) rotate(-1deg);}
+      50%{transform:translateY(-10px) rotate(1deg);}
+    }
+    body.party .bear{animation: bearParty .6s ease-in-out infinite;}
+    @keyframes bearParty{
+      0%,100%{transform:translateY(0) rotate(-4deg) scale(1.02);}
+      50%{transform:translateY(-8px) rotate(4deg) scale(1.06);}
     }
 
-    .buttons {
-      margin-top: 26px;
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-      height: 100px; /* space for No to move */
+    h1{
+      margin:0 0 16px;
+      font-size:clamp(22px, 4vw, 34px);
+      line-height:1.18;
+      font-weight:900;
+      letter-spacing:-.02em;
     }
 
-    button {
-      border: 0;
-      padding: 14px 22px;
-      border-radius: 999px;
-      font-size: 18px;
-      font-weight: 800;
-      cursor: pointer;
-      transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.14);
-      user-select: none;
-      touch-action: manipulation;
+    .sub{
+      margin: 0 0 6px;
+      font-size: 15px;
+      opacity: .85;
+      font-weight: 650;
     }
 
-    #yesBtn {
-      background: #22c55e;
-      color: white;
+    /* Buttons area */
+    .buttons{
+      margin-top:18px;
+      display:flex;
+      gap:16px;
+      justify-content:center;
+      align-items:center;
+      position:relative;
+      height:110px;
     }
-    #yesBtn:hover { transform: translateY(-2px); filter: brightness(1.05); }
-
-    #noBtn {
-      background: #ef4444;
-      color: white;
-      position: absolute; /* movable */
-      left: 50%;
-      top: 22px;
-      transform: translateX(120px);
+    button{
+      border:0;
+      padding:14px 22px;
+      border-radius:999px;
+      font-size:18px;
+      font-weight:900;
+      cursor:pointer;
+      transition:transform .12s ease, box-shadow .12s ease, filter .12s ease, opacity .12s ease;
+      box-shadow:0 10px 25px rgba(0,0,0,.14);
+      user-select:none;
+      touch-action:manipulation;
     }
-
-    /* Confetti canvas on top */
-    canvas#confetti {
-      position: fixed;
-      inset: 0;
-      z-index: 3;
-      pointer-events: none;
+    #yesBtn{
+      background:#22c55e;
+      color:#fff;
     }
-
-    .modalOverlay {
-      position: fixed;
-      inset: 0;
-      display: none;
-      place-items: center;
-      background: rgba(0,0,0,0.45);
-      padding: 22px;
-      z-index: 4;
-    }
-
-    .modal {
-      width: min(640px, 92vw);
-      background: white;
-      border-radius: 22px;
-      padding: 28px;
-      text-align: center;
-      box-shadow: 0 25px 80px rgba(0,0,0,0.25);
+    #yesBtn:hover{transform:translateY(-2px); filter:brightness(1.05);}
+    #noBtn{
+      background:#ef4444;
+      color:#fff;
+      position:absolute;
+      left:50%;
+      top:26px;
+      transform:translateX(120px);
+      transform-origin:center;
     }
 
-    .modal h2 {
-      margin: 0 0 10px;
-      font-size: clamp(22px, 4vw, 30px);
+    /* Toast */
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:18px;
+      transform:translateX(-50%);
+      z-index:5;
+      background:rgba(17,24,39,.92);
+      color:#fff;
+      padding:10px 14px;
+      border-radius:14px;
+      font-weight:800;
+      font-size:14px;
+      box-shadow:0 20px 70px rgba(0,0,0,.25);
+      display:none;
+      max-width:min(92vw, 680px);
+      text-align:center;
+    }
+    .toast.show{display:block; animation:toastIn .22s ease-out;}
+    @keyframes toastIn{
+      from{transform:translateX(-50%) translateY(10px); opacity:.0;}
+      to{transform:translateX(-50%) translateY(0); opacity:1;}
     }
 
-    .modal p {
-      margin: 0 0 18px;
-      font-size: 18px;
+    /* Modal */
+    .modalOverlay{
+      position:fixed;
+      inset:0;
+      display:none;
+      place-items:center;
+      background:rgba(0,0,0,.45);
+      padding:22px;
+      z-index:4;
+    }
+    .modal{
+      width:min(760px, 92vw);
+      background:#fff;
+      border-radius:22px;
+      padding:22px;
+      text-align:center;
+      box-shadow:0 25px 80px rgba(0,0,0,.25);
+    }
+    .modal h2{
+      margin:0 0 10px;
+      font-size:clamp(22px, 4vw, 30px);
+    }
+    .modal p{
+      margin:0 0 14px;
+      font-size:17px;
+      opacity:.92;
+      font-weight:650;
     }
 
-    .closeBtn {
-      background: #111827;
-      color: white;
+    .modalGrid{
+      display:grid;
+      gap:14px;
+      grid-template-columns: 1.1fr .9fr;
+      align-items:stretch;
+    }
+    @media (max-width: 780px){
+      .modalGrid{grid-template-columns:1fr; }
+    }
+
+    /* Polaroid */
+    .polaroid{
+      background:#fff;
+      border-radius:18px;
+      padding:12px 12px 16px;
+      box-shadow:0 15px 40px rgba(0,0,0,.12);
+      border:1px solid rgba(0,0,0,.06);
+      text-align:left;
+    }
+    .polaroid img{
+      width:100%;
+      height:260px;
+      object-fit:cover;
+      border-radius:14px;
+      display:block;
+      background:linear-gradient(135deg, #ffe6ee, #ffd1dc);
+    }
+    .caption{
+      margin:10px 6px 0;
+      font-weight:900;
+      letter-spacing:-.01em;
+    }
+    .caption small{
+      display:block;
+      font-weight:750;
+      opacity:.7;
+      margin-top:4px;
+    }
+
+    /* Scratch card */
+    .scratchWrap{
+      position:relative;
+      border-radius:18px;
+      overflow:hidden;
+      box-shadow:0 15px 40px rgba(0,0,0,.12);
+      border:1px solid rgba(0,0,0,.06);
+      background:linear-gradient(135deg, #fff, #fff5f8);
+      padding:14px;
+      text-align:left;
+      min-height: 320px;
+    }
+    .secretTitle{
+      font-weight:950;
+      font-size:18px;
+      margin:0 0 6px;
+    }
+    .secretText{
+      margin:0;
+      font-weight:750;
+      opacity:.9;
+      line-height:1.4;
+      padding-right: 4px;
+    }
+    .hint{
+      margin:10px 0 0;
+      font-size:13px;
+      font-weight:800;
+      opacity:.7;
+    }
+    #scratchCanvas{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      cursor:grab;
+      touch-action:none;
+    }
+    .scratchDone{
+      position:absolute;
+      left:14px;
+      right:14px;
+      bottom:14px;
+      background:rgba(34,197,94,.12);
+      border:1px solid rgba(34,197,94,.25);
+      color:#14532d;
+      padding:10px 12px;
+      border-radius:14px;
+      font-weight:900;
+      display:none;
+    }
+
+    .closeRow{
+      display:flex;
+      justify-content:center;
+      margin-top:14px;
+    }
+    .closeBtn{
+      background:#111827;
+      color:#fff;
     }
   </style>
 </head>
@@ -210,10 +351,18 @@
   <div class="floaties" id="floaties" aria-hidden="true"></div>
 
   <canvas id="confetti"></canvas>
+  <div class="toast" id="toast"></div>
 
-  <div class="card" id="card">
-    <div class="bear" aria-hidden="true">🧸</div>
-    <h1>Carol, would you be my Valentine again this year?</h1>
+  <div class="card">
+    <div class="topbar">
+      <div class="pill" id="attemptsPill">No attempts: <span id="noCount">0</span></div>
+      <div class="pill muted" id="miniHint">Tip: try typing <b>CAROL</b> 😄</div>
+    </div>
+
+    <div class="bear" id="bear" aria-hidden="true">🧸</div>
+
+    <h1 id="mainText">Carol, would you be my Valentine again this year?</h1>
+    <p class="sub">Be honest… but the “No” button is kinda shy 😳</p>
 
     <div class="buttons" id="playArea">
       <button id="yesBtn">Yes</button>
@@ -225,38 +374,116 @@
     <div class="modal">
       <h2>Congratulations 🎉</h2>
       <p>You have a Valentine — and he’s the best in the world. 🧸💖</p>
-      <button class="closeBtn" id="closeBtn">Aww ❤️</button>
+
+      <div class="modalGrid">
+        <!-- Polaroid -->
+        <div class="polaroid">
+          <!-- Put a photo in the same folder as index.html and name it "photo.jpg" -->
+          <img id="photo" src="photo.jpg" alt="A cute memory" onerror="this.style.display='none'; this.insertAdjacentHTML('afterend','<div style=&quot;height:260px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,#ffe6ee,#ffd1dc);font-weight:900;&quot;>Add a photo → <span style=&quot;opacity:.75;margin-left:6px&quot;>photo.jpg</span> 🧸</div>')" />
+          <div class="caption">Our little moment 💞
+            <small>(optional: add photo.jpg in your GitHub repo)</small>
+          </div>
+        </div>
+
+        <!-- Scratch Card -->
+        <div class="scratchWrap" id="scratchWrap">
+          <h3 class="secretTitle">Scratch to reveal a secret 💌</h3>
+          <p class="secretText" id="secretText">
+            Date idea: a cozy dinner + dessert + a big hug… and you pick the movie 🍓🎀
+            <br/><br/>
+            PS: You’re my favorite person. Always. 🫶
+          </p>
+          <p class="hint">Scratch the grey area with your finger/mouse ✨</p>
+
+          <canvas id="scratchCanvas"></canvas>
+          <div class="scratchDone" id="scratchDone">YAY! Secret revealed 💖</div>
+        </div>
+      </div>
+
+      <div class="closeRow">
+        <button class="closeBtn" id="closeBtn">Aww ❤️</button>
+      </div>
     </div>
   </div>
 
   <script>
     // ---------------------------
-    // 0) "Pop" sound (Web Audio)
+    // Settings you can tweak quickly
+    // ---------------------------
+    const FLOAT_COUNT = 36; // more = busier background
+    const FLOAT_CHARS = ["❤","♡","❥","♥","💕","💖","💘","💝","✨","🌸","🥰","😍","🎀","🫶","🍓","🐻","🧸"];
+    const NO_TEXT_STEPS = [
+      "No",
+      "Are you sure? 😳",
+      "Like… REALLY sure? 🥺",
+      "This is kinda breaking my heart 💔",
+      "Last chance… 😭",
+      "Ok you’re too fast 😤",
+      "Stoppp 😭💖",
+      "No has left the chat 💨"
+    ];
+
+    // ---------------------------
+    // 0) Cute sounds (Web Audio)
     // ---------------------------
     let audioCtx = null;
 
-    function playPop() {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === "suspended") audioCtx.resume();
+    function getAudio(){
+      if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if(audioCtx.state === "suspended") audioCtx.resume();
+      return audioCtx;
+    }
 
-      const t0 = audioCtx.currentTime;
-
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
+    function playPop(){
+      const ac = getAudio();
+      const t0 = ac.currentTime;
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
 
       osc.type = "sine";
       osc.frequency.setValueAtTime(260, t0);
       osc.frequency.exponentialRampToValueAtTime(120, t0 + 0.06);
 
       gain.gain.setValueAtTime(0.0001, t0);
-      gain.gain.exponentialRampToValueAtTime(0.5, t0 + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.55, t0 + 0.012);
       gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.09);
 
       osc.connect(gain);
-      gain.connect(audioCtx.destination);
-
+      gain.connect(ac.destination);
       osc.start(t0);
       osc.stop(t0 + 0.1);
+    }
+
+    function playSparkle(){
+      const ac = getAudio();
+      const t0 = ac.currentTime;
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(740, t0);
+      osc.frequency.exponentialRampToValueAtTime(1180, t0 + 0.08);
+
+      gain.gain.setValueAtTime(0.0001, t0);
+      gain.gain.exponentialRampToValueAtTime(0.25, t0 + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.18);
+
+      osc.connect(gain);
+      gain.connect(ac.destination);
+      osc.start(t0);
+      osc.stop(t0 + 0.2);
+    }
+
+    // ---------------------------
+    // Toast helper
+    // ---------------------------
+    const toast = document.getElementById("toast");
+    let toastTimer = null;
+    function showToast(msg, ms=1800){
+      toast.textContent = msg;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(()=>toast.classList.remove("show"), ms);
     }
 
     // ---------------------------
@@ -264,28 +491,19 @@
     // ---------------------------
     const floatiesLayer = document.getElementById("floaties");
 
-    // Hearts + cute iPhone-style emojis
-    const floatChars = [
-      "❤","♡","❥","♥","💕","💖","💘","💝","✨","🌸","🥰","😍","🎀","🫶","🍓"
-    ];
-
-    // More = more “busy”; you can tweak this number
-    const floatCount = 34;
-
-    function spawnFloaties() {
+    function spawnFloaties(){
       floatiesLayer.innerHTML = "";
-
-      for (let i = 0; i < floatCount; i++) {
+      for(let i=0;i<FLOAT_COUNT;i++){
         const el = document.createElement("div");
         el.className = "floaty";
-        el.textContent = floatChars[Math.floor(Math.random() * floatChars.length)];
+        el.textContent = FLOAT_CHARS[Math.floor(Math.random()*FLOAT_CHARS.length)];
 
-        const left = Math.random() * 100;
-        const size = 14 + Math.random() * 22;     // 14 - 36px
-        const dur  = 8 + Math.random() * 12;      // 8 - 20s
-        const delay = Math.random() * 10;         // 0 - 10s
-        const drift = (Math.random() * 100 - 50) + "px"; // -50..50px
-        const opacity = 0.45 + Math.random() * 0.45;
+        const left = Math.random()*100;
+        const size = 14 + Math.random()*22;     // 14 - 36px
+        const dur  = 8 + Math.random()*12;      // 8 - 20s
+        const delay = Math.random()*10;         // 0 - 10s
+        const drift = (Math.random()*110 - 55) + "px"; // -55..55px
+        const opacity = 0.45 + Math.random()*0.45;
 
         el.style.left = left + "vw";
         el.style.fontSize = size + "px";
@@ -293,16 +511,16 @@
         el.style.animationDelay = (-delay) + "s";
         el.style.setProperty("--drift", drift);
         el.style.opacity = opacity.toFixed(2);
+        el.style.setProperty("--dur", dur + "s");
 
         floatiesLayer.appendChild(el);
       }
     }
-
     spawnFloaties();
     window.addEventListener("resize", spawnFloaties);
 
     // ---------------------------
-    // 2) No button evasion
+    // 2) No button: evasive + evolving text + shrink + disappear
     // ---------------------------
     const noBtn = document.getElementById("noBtn");
     const yesBtn = document.getElementById("yesBtn");
@@ -310,9 +528,12 @@
     const closeBtn = document.getElementById("closeBtn");
     const playArea = document.getElementById("playArea");
 
+    const noCountEl = document.getElementById("noCount");
+    let noAttempts = 0;
+
     playArea.style.position = "relative";
 
-    function moveNoButton() {
+    function moveNoButton(){
       const areaRect = playArea.getBoundingClientRect();
       const btnRect = noBtn.getBoundingClientRect();
       const pad = 8;
@@ -320,30 +541,70 @@
       const maxX = areaRect.width - btnRect.width - pad;
       const maxY = areaRect.height - btnRect.height - pad;
 
-      const x = Math.max(pad, Math.floor(Math.random() * maxX));
-      const y = Math.max(pad, Math.floor(Math.random() * maxY));
+      const x = Math.max(pad, Math.floor(Math.random()*maxX));
+      const y = Math.max(pad, Math.floor(Math.random()*maxY));
 
       noBtn.style.left = x + "px";
       noBtn.style.top = y + "px";
       noBtn.style.transform = "none";
     }
 
-    noBtn.addEventListener("mouseenter", moveNoButton);
+    function updateNoState(){
+      noCountEl.textContent = String(noAttempts);
 
-    playArea.addEventListener("mousemove", (e) => {
-      const btnRect = noBtn.getBoundingClientRect();
-      const dx = e.clientX - (btnRect.left + btnRect.width / 2);
-      const dy = e.clientY - (btnRect.top + btnRect.height / 2);
-      const dist = Math.hypot(dx, dy);
-      if (dist < 90) moveNoButton();
+      const idx = Math.min(noAttempts, NO_TEXT_STEPS.length - 1);
+      noBtn.textContent = NO_TEXT_STEPS[idx];
+
+      // shrink gradually
+      const scale = Math.max(0.55, 1 - noAttempts * 0.06);
+      noBtn.style.transform = `scale(${scale})`;
+
+      // last step: disappear
+      if(noAttempts >= NO_TEXT_STEPS.length - 1){
+        noBtn.style.opacity = "0";
+        noBtn.style.pointerEvents = "none";
+        showToast("No has disappeared… interesting 👀💖", 2200);
+      }
+    }
+
+    // Run away when close
+    noBtn.addEventListener("mouseenter", () => {
+      noAttempts++;
+      updateNoState();
+      moveNoButton();
     });
 
+    // If somehow clicked
+    noBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      noAttempts++;
+      updateNoState();
+      moveNoButton();
+      showToast("Nice try 😄", 900);
+    });
+
+    // Extra: move when cursor approaches
+    playArea.addEventListener("mousemove", (e) => {
+      if(noAttempts >= NO_TEXT_STEPS.length - 1) return;
+      const btnRect = noBtn.getBoundingClientRect();
+      const dx = e.clientX - (btnRect.left + btnRect.width/2);
+      const dy = e.clientY - (btnRect.top + btnRect.height/2);
+      const dist = Math.hypot(dx, dy);
+      if(dist < 90) moveNoButton();
+    });
+
+    // Mobile: evade on touch
     noBtn.addEventListener("touchstart", (e) => {
       e.preventDefault();
+      noAttempts++;
+      updateNoState();
       moveNoButton();
-    }, { passive: false });
+    }, {passive:false});
 
-    setTimeout(moveNoButton, 250);
+    setTimeout(() => {
+      updateNoState();
+      moveNoButton();
+    }, 250);
 
     // ---------------------------
     // 3) Confetti (canvas)
@@ -351,7 +612,7 @@
     const canvas = document.getElementById("confetti");
     const ctx = canvas.getContext("2d");
 
-    function resizeCanvas() {
+    function resizeCanvas(){
       canvas.width = window.innerWidth * devicePixelRatio;
       canvas.height = window.innerHeight * devicePixelRatio;
       canvas.style.width = window.innerWidth + "px";
@@ -365,42 +626,37 @@
     let confettiActive = false;
     let confettiEndTime = 0;
 
-    function rand(min, max) { return Math.random() * (max - min) + min; }
+    function rand(min,max){ return Math.random()*(max-min)+min; }
 
-    function launchConfetti(durationMs = 2200) {
+    function launchConfetti(durationMs=2200, count=260){
       confettiPieces = [];
-      const count = 240;
-
-      for (let i = 0; i < count; i++) {
+      for(let i=0;i<count;i++){
         confettiPieces.push({
           x: rand(0, window.innerWidth),
           y: rand(-40, -10),
           w: rand(6, 12),
           h: rand(8, 16),
-          vx: rand(-2.2, 2.2),
-          vy: rand(2.5, 6.2),
-          rot: rand(0, Math.PI * 2),
-          vr: rand(-0.2, 0.2),
-          color: Math.random() < 0.5
-            ? "rgba(255,255,255,0.95)"
-            : "rgba(255,105,180,0.95)"
+          vx: rand(-2.6, 2.6),
+          vy: rand(2.5, 6.8),
+          rot: rand(0, Math.PI*2),
+          vr: rand(-0.22, 0.22),
+          // pink/white palette
+          color: Math.random() < 0.5 ? "rgba(255,255,255,0.95)" : "rgba(255,105,180,0.95)"
         });
       }
-
       confettiActive = true;
       confettiEndTime = performance.now() + durationMs;
       requestAnimationFrame(tickConfetti);
     }
 
-    function tickConfetti(t) {
-      if (!confettiActive) return;
+    function tickConfetti(t){
+      if(!confettiActive) return;
 
-      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-
+      ctx.clearRect(0,0, window.innerWidth, window.innerHeight);
       const gravity = 0.06;
       const drag = 0.995;
 
-      for (const p of confettiPieces) {
+      for(const p of confettiPieces){
         p.vy += gravity;
         p.vx *= drag;
         p.vy *= drag;
@@ -409,38 +665,186 @@
         p.y += p.vy;
         p.rot += p.vr;
 
-        if (p.x < -30) p.x = window.innerWidth + 30;
-        if (p.x > window.innerWidth + 30) p.x = -30;
+        if(p.x < -30) p.x = window.innerWidth + 30;
+        if(p.x > window.innerWidth + 30) p.x = -30;
 
         ctx.save();
         ctx.translate(p.x, p.y);
         ctx.rotate(p.rot);
         ctx.fillStyle = p.color;
-        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
         ctx.restore();
       }
 
       const allBelow = confettiPieces.every(p => p.y > window.innerHeight + 60);
-      if (t > confettiEndTime || allBelow) {
+      if(t > confettiEndTime || allBelow){
         confettiActive = false;
-        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        ctx.clearRect(0,0, window.innerWidth, window.innerHeight);
         return;
       }
       requestAnimationFrame(tickConfetti);
     }
 
     // ---------------------------
-    // 4) Yes click -> pop + confetti + modal
+    // 4) Scratch card
     // ---------------------------
+    const scratchCanvas = document.getElementById("scratchCanvas");
+    const scratchWrap = document.getElementById("scratchWrap");
+    const scratchDone = document.getElementById("scratchDone");
+
+    const sctx = scratchCanvas.getContext("2d");
+    let scratching = false;
+    let scratchCompleted = false;
+
+    function sizeScratchCanvas(){
+      const r = scratchWrap.getBoundingClientRect();
+      scratchCanvas.width = Math.floor(r.width * devicePixelRatio);
+      scratchCanvas.height = Math.floor(r.height * devicePixelRatio);
+      scratchCanvas.style.width = r.width + "px";
+      scratchCanvas.style.height = r.height + "px";
+      sctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+
+      // paint cover
+      sctx.globalCompositeOperation = "source-over";
+      sctx.fillStyle = "rgba(180,180,180,0.96)";
+      sctx.fillRect(0,0, r.width, r.height);
+
+      // some cute “scratch” text
+      sctx.fillStyle = "rgba(255,255,255,0.9)";
+      sctx.font = "900 16px system-ui";
+      sctx.fillText("SCRATCH ME ✨", 18, 36);
+
+      scratchDone.style.display = "none";
+      scratchCompleted = false;
+    }
+
+    function scratchAt(x,y){
+      const r = scratchWrap.getBoundingClientRect();
+      const sx = x - r.left;
+      const sy = y - r.top;
+
+      sctx.globalCompositeOperation = "destination-out";
+      sctx.beginPath();
+      sctx.arc(sx, sy, 18, 0, Math.PI*2);
+      sctx.fill();
+    }
+
+    function checkScratchProgress(){
+      if (scratchCompleted) return;
+      const r = scratchWrap.getBoundingClientRect();
+      const img = sctx.getImageData(0,0, Math.floor(r.width), Math.floor(r.height)).data;
+
+      let transparent = 0;
+      // sample every 8th pixel for speed
+      for(let i=3;i<img.length;i+=4*8){
+        if(img[i] === 0) transparent++;
+      }
+      const total = img.length / (4*8);
+      const ratio = transparent / total;
+
+      if(ratio > 0.45){
+        scratchCompleted = true;
+        scratchDone.style.display = "block";
+        playSparkle();
+        showToast("Secret unlocked 💖", 1400);
+
+        // remove cover smoothly
+        setTimeout(()=> {
+          sctx.clearRect(0,0, scratchCanvas.width, scratchCanvas.height);
+        }, 280);
+      }
+    }
+
+    function pointerPos(e){
+      const p = (e.touches && e.touches[0]) ? e.touches[0] : e;
+      return {x: p.clientX, y: p.clientY};
+    }
+
+    function scratchStart(e){
+      scratching = true;
+      const {x,y} = pointerPos(e);
+      scratchAt(x,y);
+      e.preventDefault();
+    }
+    function scratchMove(e){
+      if(!scratching) return;
+      const {x,y} = pointerPos(e);
+      scratchAt(x,y);
+      e.preventDefault();
+    }
+    function scratchEnd(){
+      if(!scratching) return;
+      scratching = false;
+      checkScratchProgress();
+    }
+
+    // init scratch when modal opens
+    function initScratch(){
+      sizeScratchCanvas();
+      scratchCanvas.addEventListener("pointerdown", scratchStart);
+      scratchCanvas.addEventListener("pointermove", scratchMove);
+      scratchCanvas.addEventListener("pointerup", scratchEnd);
+      scratchCanvas.addEventListener("pointercancel", scratchEnd);
+
+      // touch fallback
+      scratchCanvas.addEventListener("touchstart", scratchStart, {passive:false});
+      scratchCanvas.addEventListener("touchmove", scratchMove, {passive:false});
+      scratchCanvas.addEventListener("touchend", scratchEnd);
+    }
+
+    // ---------------------------
+    // 5) Yes click: pop + confetti + party mode + modal + scratch init
+    // ---------------------------
+    let scratchInited = false;
+
     yesBtn.addEventListener("click", () => {
       playPop();
-      launchConfetti();
+      launchConfetti(2400, 280);
+      document.body.classList.add("party");
       overlay.style.display = "grid";
+
+      if(!scratchInited){
+        scratchInited = true;
+        // wait a tick so modal layout is correct
+        setTimeout(initScratch, 50);
+        setTimeout(sizeScratchCanvas, 180);
+      } else {
+        setTimeout(sizeScratchCanvas, 50);
+      }
+
+      showToast("YAYYYY 💘", 1200);
+
+      // party mode ends after a bit
+      setTimeout(()=>document.body.classList.remove("party"), 2500);
     });
 
     closeBtn.addEventListener("click", () => {
       overlay.style.display = "none";
     });
+
+    // ---------------------------
+    // 6) Easter egg: type CAROL
+    // ---------------------------
+    let buffer = "";
+    window.addEventListener("keydown", (e) => {
+      const k = e.key.toLowerCase();
+      if(k.length !== 1) return;
+      buffer = (buffer + k).slice(-10);
+
+      if(buffer.includes("carol")){
+        buffer = "";
+        playSparkle();
+        launchConfetti(3200, 420);
+        document.body.classList.add("party");
+        showToast("EASTER EGG UNLOCKED 🧸✨💖", 2000);
+
+        const bear = document.getElementById("bear");
+        bear.textContent = "🧸💖🧸";
+
+        setTimeout(()=>document.body.classList.remove("party"), 3000);
+      }
+    });
   </script>
 </body>
 </html>
+
