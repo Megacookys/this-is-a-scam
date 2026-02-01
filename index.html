@@ -180,7 +180,7 @@
       color:#fff;
       position:absolute;
       top:26px;
-      left:calc(50% + 120px); /* initial position, transform reserved for scale */
+      left:calc(50% + 120px);
       transform: scale(1);
       transform-origin:center;
     }
@@ -269,12 +269,6 @@
       margin:10px 6px 0;
       font-weight:900;
       letter-spacing:-.01em;
-    }
-    .caption small{
-      display:block;
-      font-weight:750;
-      opacity:.7;
-      margin-top:4px;
     }
 
     /* Scratch card */
@@ -376,21 +370,16 @@
       <p>Wowwww, you have a Valentin! I mean a Lucas!!! Bravo ❤️</p>
 
       <div class="modalGrid">
-        <!-- Polaroid -->
         <div class="polaroid">
-          <!-- Put a photo in the same folder as index.html and name it "photo.jpg" -->
           <img id="photo" src="photo.jpg" alt="A cute memory"
             onerror="this.style.display='none'; this.insertAdjacentHTML('afterend','<div style=&quot;height:260px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,#ffe6ee,#ffd1dc);font-weight:900;&quot;>Add a photo → <span style=&quot;opacity:.75;margin-left:6px&quot;>photo.jpg</span> 🧸</div>')" />
-          <div class="caption">Our little moment 💞
-            <small>(optional: add photo.jpg in your GitHub repo)</small>
-          </div>
+          <div class="caption">Our little moment 💞</div>
         </div>
 
-        <!-- Scratch Card -->
         <div class="scratchWrap" id="scratchWrap">
           <h3 class="secretTitle">Scratch to reveal a secret 💌</h3>
           <p class="secretText" id="secretText">
-            Date idea: a cozy dinner + dessert + a big hug… and you pick the movie 🍓🎀
+            Date idea: a cozy dinner + petit gateau + a very big hug… and you pick the movie 🍓🎀
             <br/><br/>
             PS: You’re my favorite person. Always. 🫶
           </p>
@@ -408,9 +397,6 @@
   </div>
 
   <script>
-    // ---------------------------
-    // Settings you can tweak quickly
-    // ---------------------------
     const FLOAT_COUNT = 36;
     const FLOAT_CHARS = ["❤","♡","❥","♥","💕","💖","💘","💝","✨","🌸","🥰","😍","🎀","🫶","🍓","🐻","🧸"];
     const NO_TEXT_STEPS = [
@@ -424,14 +410,11 @@
       "No has left the chat 💨"
     ];
 
-    // --- NEW: Make "No" catchable eventually (but not at the start)
-    const CHASE_TO_UNLOCK = 6;         // after this many chases, it becomes catchable
-    const UNLOCK_AFTER_MS = 9000;      // or after this time (ms) since load
-    const CATCH_WINDOW_MS = 650;       // time window where it "freezes" so you can click it
+    const CHASE_TO_UNLOCK = 6;
+    const UNLOCK_AFTER_MS = 9000;
+    const CATCH_WINDOW_MS = 650;
 
-    // ---------------------------
-    // 0) Cute sounds (Web Audio)
-    // ---------------------------
+    // Audio
     let audioCtx = null;
     function getAudio(){
       if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -471,9 +454,7 @@
       osc.stop(t0 + 0.2);
     }
 
-    // ---------------------------
-    // Toast helper
-    // ---------------------------
+    // Toast
     const toast = document.getElementById("toast");
     let toastTimer = null;
     function showToast(msg, ms=1800){
@@ -483,9 +464,7 @@
       toastTimer = setTimeout(()=>toast.classList.remove("show"), ms);
     }
 
-    // ---------------------------
-    // 1) Floating hearts + cute emojis
-    // ---------------------------
+    // Floaties
     const floatiesLayer = document.getElementById("floaties");
     function spawnFloaties(){
       floatiesLayer.innerHTML = "";
@@ -493,7 +472,6 @@
         const el = document.createElement("div");
         el.className = "floaty";
         el.textContent = FLOAT_CHARS[Math.floor(Math.random()*FLOAT_CHARS.length)];
-
         const left = Math.random()*100;
         const size = 14 + Math.random()*22;
         const dur  = 8 + Math.random()*12;
@@ -515,32 +493,27 @@
     spawnFloaties();
     window.addEventListener("resize", spawnFloaties);
 
-    // ---------------------------
-    // 2) No button: Stage A (hard to catch) -> Stage B (normal "panic" steps)
-    // ---------------------------
+    // No button stages
     const noBtn = document.getElementById("noBtn");
     const yesBtn = document.getElementById("yesBtn");
     const overlay = document.getElementById("overlay");
     const closeBtn = document.getElementById("closeBtn");
     const playArea = document.getElementById("playArea");
     const noCountEl = document.getElementById("noCount");
-
     playArea.style.position = "relative";
 
-    let noCaughtOnce = false;  // becomes true after first successful click on "No"
-    let chaseCount = 0;        // stage A counter
-    let noAttempts = 0;        // stage B counter (the “panic” steps)
+    let noCaughtOnce = false;
+    let chaseCount = 0;
+    let noAttempts = 0;
     const unlockAt = Date.now() + UNLOCK_AFTER_MS;
 
     let evadeTimer = null;
     function scheduleEvade(ms){
       clearTimeout(evadeTimer);
       evadeTimer = setTimeout(()=>{
-        // if still not caught, run away
         if(!noCaughtOnce) moveNoButton();
       }, ms);
     }
-
     function isCatchableNow(){
       return chaseCount >= CHASE_TO_UNLOCK || Date.now() >= unlockAt;
     }
@@ -549,25 +522,18 @@
       const areaRect = playArea.getBoundingClientRect();
       const btnRect = noBtn.getBoundingClientRect();
       const pad = 8;
-
       const maxX = areaRect.width - btnRect.width - pad;
       const maxY = areaRect.height - btnRect.height - pad;
-
       const x = Math.max(pad, Math.floor(Math.random()*maxX));
       const y = Math.max(pad, Math.floor(Math.random()*maxY));
-
       noBtn.style.left = x + "px";
       noBtn.style.top = y + "px";
-      // do NOT touch transform here (transform is used for scale)
     }
 
     function updateNoState(){
-      // stage B: normal behavior (text steps, shrink, disappear)
       noCountEl.textContent = String(noAttempts);
-
       const idx = Math.min(noAttempts, NO_TEXT_STEPS.length - 1);
       noBtn.textContent = NO_TEXT_STEPS[idx];
-
       const scale = Math.max(0.55, 1 - noAttempts * 0.06);
       noBtn.style.transform = `scale(${scale})`;
 
@@ -578,46 +544,36 @@
       }
     }
 
-    // Stage A: run away, but eventually "freeze" so you can click it
     function stageA_evade(){
       chaseCount++;
       noCountEl.textContent = String(chaseCount);
 
       if(!isCatchableNow()){
-        // impossible at the very beginning
         moveNoButton();
         if(chaseCount === 1) showToast("Too slow 😈", 900);
         return;
       }
 
-      // Now it becomes catchable for a short window
       noBtn.textContent = "Okay okay… click me 🙈";
       showToast("Alright… you can catch it now 😳", 1200);
-
-      // Freeze briefly then evade (gives you time to click)
       scheduleEvade(CATCH_WINDOW_MS);
     }
 
-    // If the cursor gets close, it reacts
     function handleApproach(e){
-      if(noCaughtOnce) return; // stage A only
+      if(noCaughtOnce) return;
       const r = noBtn.getBoundingClientRect();
       const cx = r.left + r.width/2;
       const cy = r.top + r.height/2;
-
       const dx = e.clientX - cx;
       const dy = e.clientY - cy;
       const dist = Math.hypot(dx, dy);
 
-      // When close enough, trigger one evade (not every pixel)
       if(dist < 85 && !evadeTimer){
         stageA_evade();
-        // small cooldown so it doesn't spam increments
         evadeTimer = setTimeout(()=>{ clearTimeout(evadeTimer); evadeTimer = null; }, 250);
       }
     }
 
-    // Stage B handlers (after first catch)
     function stageB_evade(){
       if(noAttempts >= NO_TEXT_STEPS.length - 1) return;
       noAttempts++;
@@ -625,20 +581,14 @@
       moveNoButton();
     }
 
-    // Events
     noBtn.addEventListener("mouseenter", () => {
-      if(!noCaughtOnce){
-        stageA_evade();
-      } else {
-        stageB_evade();
-      }
+      if(!noCaughtOnce) stageA_evade();
+      else stageB_evade();
     });
 
     playArea.addEventListener("mousemove", (e) => {
-      // stage A: detect approach
       if(!noCaughtOnce) handleApproach(e);
 
-      // stage B: still runs away when close
       if(noCaughtOnce && noAttempts < NO_TEXT_STEPS.length - 1){
         const btnRect = noBtn.getBoundingClientRect();
         const dx = e.clientX - (btnRect.left + btnRect.width/2);
@@ -648,12 +598,9 @@
       }
     });
 
-    // Click on No:
     noBtn.addEventListener("click", (e) => {
       e.preventDefault();
-
       if(!noCaughtOnce){
-        // FIRST successful catch -> switch to stage B "panic mode"
         noCaughtOnce = true;
         noAttempts = 1;
         noBtn.textContent = NO_TEXT_STEPS[1];
@@ -661,39 +608,22 @@
         playSparkle();
         showToast("You caught it! Now it panics 😳", 1600);
         noCountEl.textContent = String(noAttempts);
-        setTimeout(() => {
-          // it runs away again and then continues behaving normally
-          moveNoButton();
-        }, 180);
+        setTimeout(moveNoButton, 180);
         return;
       }
-
-      // After first catch, clicking behaves like “another attempt”
       stageB_evade();
       showToast("Nice try 😄", 900);
     });
 
-    // Mobile: touch makes it evade (stage A) and still catchable later
     noBtn.addEventListener("touchstart", (e) => {
       e.preventDefault();
-      if(!noCaughtOnce){
-        stageA_evade();
-      } else {
-        stageB_evade();
-      }
+      if(!noCaughtOnce) stageA_evade();
+      else stageB_evade();
     }, {passive:false});
 
-    // Initialize
-    setTimeout(() => {
-      noBtn.style.opacity = "1";
-      noBtn.style.pointerEvents = "auto";
-      noBtn.style.transform = "scale(1)";
-      moveNoButton();
-    }, 250);
+    setTimeout(() => { moveNoButton(); }, 250);
 
-    // ---------------------------
-    // 3) Confetti (canvas)
-    // ---------------------------
+    // Confetti
     const canvas = document.getElementById("confetti");
     const ctx = canvas.getContext("2d");
 
@@ -712,8 +642,7 @@
     let confettiEndTime = 0;
 
     function rand(min,max){ return Math.random()*(max-min)+min; }
-
-    function launchConfetti(durationMs=2200, count=260){
+    function launchConfetti(durationMs=2400, count=280){
       confettiPieces = [];
       for(let i=0;i<count;i++){
         confettiPieces.push({
@@ -732,10 +661,8 @@
       confettiEndTime = performance.now() + durationMs;
       requestAnimationFrame(tickConfetti);
     }
-
     function tickConfetti(t){
       if(!confettiActive) return;
-
       ctx.clearRect(0,0, window.innerWidth, window.innerHeight);
       const gravity = 0.06;
       const drag = 0.995;
@@ -744,7 +671,6 @@
         p.vy += gravity;
         p.vx *= drag;
         p.vy *= drag;
-
         p.x += p.vx;
         p.y += p.vy;
         p.rot += p.vr;
@@ -769,13 +695,10 @@
       requestAnimationFrame(tickConfetti);
     }
 
-    // ---------------------------
-    // 4) Scratch card
-    // ---------------------------
+    // Scratch
     const scratchCanvas = document.getElementById("scratchCanvas");
     const scratchWrap = document.getElementById("scratchWrap");
     const scratchDone = document.getElementById("scratchDone");
-
     const sctx = scratchCanvas.getContext("2d");
     let scratching = false;
     let scratchCompleted = false;
@@ -788,7 +711,6 @@
       scratchCanvas.style.height = r.height + "px";
       sctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
 
-      // paint cover
       sctx.globalCompositeOperation = "source-over";
       sctx.fillStyle = "rgba(180,180,180,0.96)";
       sctx.fillRect(0,0, r.width, r.height);
@@ -805,7 +727,6 @@
       const r = scratchWrap.getBoundingClientRect();
       const sx = x - r.left;
       const sy = y - r.top;
-
       sctx.globalCompositeOperation = "destination-out";
       sctx.beginPath();
       sctx.arc(sx, sy, 18, 0, Math.PI*2);
@@ -829,10 +750,7 @@
         scratchDone.style.display = "block";
         playSparkle();
         showToast("Secret unlocked 💖", 1400);
-
-        setTimeout(()=> {
-          sctx.clearRect(0,0, scratchCanvas.width, scratchCanvas.height);
-        }, 280);
+        setTimeout(()=> { sctx.clearRect(0,0, scratchCanvas.width, scratchCanvas.height); }, 280);
       }
     }
 
@@ -865,17 +783,13 @@
       scratchCanvas.addEventListener("pointermove", scratchMove);
       scratchCanvas.addEventListener("pointerup", scratchEnd);
       scratchCanvas.addEventListener("pointercancel", scratchEnd);
-
       scratchCanvas.addEventListener("touchstart", scratchStart, {passive:false});
       scratchCanvas.addEventListener("touchmove", scratchMove, {passive:false});
       scratchCanvas.addEventListener("touchend", scratchEnd);
     }
 
-    // ---------------------------
-    // 5) Yes click: pop + confetti + party mode + modal + scratch init
-    // ---------------------------
+    // Yes
     let scratchInited = false;
-
     yesBtn.addEventListener("click", () => {
       playPop();
       launchConfetti(2400, 280);
@@ -894,29 +808,21 @@
       setTimeout(()=>document.body.classList.remove("party"), 2500);
     });
 
-    closeBtn.addEventListener("click", () => {
-      overlay.style.display = "none";
-    });
+    closeBtn.addEventListener("click", () => { overlay.style.display = "none"; });
 
-    // ---------------------------
-    // 6) Easter egg: type CAROL
-    // ---------------------------
+    // Easter egg
     let buffer = "";
     window.addEventListener("keydown", (e) => {
       const k = e.key.toLowerCase();
       if(k.length !== 1) return;
       buffer = (buffer + k).slice(-10);
-
       if(buffer.includes("carol")){
         buffer = "";
         playSparkle();
         launchConfetti(3200, 420);
         document.body.classList.add("party");
         showToast("EASTER EGG UNLOCKED 🧸✨💖", 2000);
-
-        const bear = document.getElementById("bear");
-        bear.textContent = "🧸💖🧸";
-
+        document.getElementById("bear").textContent = "🧸💖🧸";
         setTimeout(()=>document.body.classList.remove("party"), 3000);
       }
     });
